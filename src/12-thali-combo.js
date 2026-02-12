@@ -54,16 +54,78 @@
  */
 export function createThaliDescription(thali) {
   // Your code here
+  if (
+    typeof thali !== 'object' ||
+    thali === null ||
+    typeof thali.name !== 'string' ||
+    !Array.isArray(thali.items) ||
+    typeof thali.price !== 'number' ||
+    typeof thali.isVeg !== 'boolean'
+  ) {
+    return '';
+  }
+
+  let type;
+  if (thali.isVeg) {
+    type = 'Veg';
+  } else {
+    type = 'Non-Veg';
+  }
+
+  return `${thali.name.toUpperCase()} (${type}) - Items: ${thali.items.join(
+    ', ',
+  )} - Rs.${thali.price.toFixed(2)}`;
 }
 
 export function getThaliStats(thalis) {
   // Your code here
+  if (!Array.isArray(thalis) || thalis.length === 0) return null;
+
+  const vegThalis = thalis.filter((t) => t.isVeg === true);
+  const nonVegThalis = thalis.filter((t) => t.isVeg === false);
+
+  const prices = thalis.map((t) => t.price);
+
+  const totalPrice = prices.reduce((sum, p) => sum + p, 0);
+  const avgPrice = (totalPrice / prices.length).toFixed(2);
+
+  return {
+    totalThalis: thalis.length,
+    vegCount: vegThalis.length,
+    nonVegCount: nonVegThalis.length,
+    avgPrice: avgPrice,
+    cheapest: Math.min(...prices),
+    costliest: Math.max(...prices),
+    names: thalis.map((t) => t.name),
+  };
 }
 
 export function searchThaliMenu(thalis, query) {
   // Your code here
+  if (!Array.isArray(thalis) || typeof query !== 'string') return [];
+
+  const search = query.toLowerCase();
+
+  return thalis.filter((thali) => {
+    if (thali.name.toLowerCase().includes(search)) return true;
+    return thali.items.some((item) => item.toLowerCase().includes(search));
+  });
 }
 
 export function generateThaliReceipt(customerName, thalis) {
   // Your code here
+  if (typeof customerName !== 'string') return '';
+  if (!Array.isArray(thalis) || thalis.length === 0) return '';
+
+  const lines = thalis.map((t) => `- ${t.name} x Rs.${t.price}`).join('\n');
+
+  const total = thalis.reduce((sum, t) => sum + t.price, 0);
+
+  return `THALI RECEIPT
+---
+Customer: ${customerName.toUpperCase()}
+${lines}
+---
+Total: Rs.${total}
+Items: ${thalis.length}`;
 }
